@@ -14,3 +14,11 @@ def gen_display_board():
 
 if __name__ == "__main__":
     gen_display_board()
+
+
+def main():
+    print("Hello from scrable!")
+
+
+if __name__ == "__main__":
+    main()
