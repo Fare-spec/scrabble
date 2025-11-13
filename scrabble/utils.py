@@ -49,3 +49,11 @@ def generer_dico(
             l, v, o = ligne.strip().split(";")
             jetons[l] = {"occ": int(o), "val": int(v)}
     return jetons
+
+
+# Student functions:
+
+
+def get_values(path: str = "data/lettres_e.txt") -> dict[str, dict[str, int]]:
+    dico = generer_dico(path)
+    return dico

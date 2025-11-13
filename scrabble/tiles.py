@@ -1,6 +1,5 @@
 import random as rng
-
-CHAR = "azertyuiopqsdfghjklmwxcvbn"
+import utils
 
 
 class Rack:
@@ -31,9 +30,15 @@ class Rack:
 
 class Pick:
     def __init__(self) -> None:
-        self.pick = [letter for letter in CHAR]
-        self.add_random(CHAR)
-        self.shuffle_pick()
+        pick_dico = utils.get_values()
+        self.init_pick(pick_dico)
+
+    def init_pick(self, dico: dict[str, dict[str, int]]) -> None:
+        pick = list()
+        for letter, occ in dico.items():
+            for _ in range(occ["occ"]):
+                pick.append(letter)
+        self.pick = pick
 
     def add_elt(self, elt: str) -> None:
         self.pick.append(elt)
@@ -42,18 +47,8 @@ class Pick:
         for elt in elts:
             self.add_elt(elt)
 
-    def add_random(self, source: str) -> None:
-        self.pick += rng.choices(source, k=100 - 26) + [
-            "?",
-            "?",
-        ]  # 100 - 26 because 26 letters already in and we do not count the 2 jokers
-
-    def shuffle_pick(self) -> None:
-        """Only purpose of this function is to shuffle the pick"""
-        rng.shuffle(self.pick)
-
     def draw(self, quantity: int) -> list[str]:
-        return self.remove_elts(rng.choices(self.pick, k=quantity))
+        return self.remove_elts(rng.sample(self.pick, k=quantity))
 
     def remove_elts(self, elts: list[str]) -> list[str]:
         for tiles in elts:
@@ -71,7 +66,7 @@ def exchange(tiles: str, rack: Rack, bag: Pick):
     change_size = len(tiles)
     l_tiles = [tile for tile in tiles]
     # We first verify if all tiles are in the rack and that there are enough tiles into the bag
-    if all(elt in rack for elt in tiles) and change_size >= len(bag):
+    if all(elt in rack for elt in tiles) and change_size <= len(bag):
         # first we remove tiles from the rack
         rack.remove_elts(l_tiles)
         # then we pick tiles from the rack
@@ -104,7 +99,7 @@ def pick(bag: Pick, x: int) -> list[str]:
     return bag.draw(x)
 
 
-def pioche(sac: Pick, x: int) -> list[str]:
+def piocher(sac: Pick, x: int) -> list[str]:
     return pick(sac, x)
 
 
@@ -113,6 +108,7 @@ def init_pioche_alea() -> list:
 
 
 # Debug functions
+# Were usefull until we changed the pick function at Q4.21
 def frequencies_percent(lst):
     """
     Allow us to verify that the previous function is truly random and no error were committed
