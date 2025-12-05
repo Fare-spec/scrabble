@@ -85,4 +85,5 @@ def test():
     print(best, score)
 
 
-test()
+if __name__ == "__main__":
+    test()

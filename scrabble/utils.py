@@ -54,6 +54,6 @@ def generer_dico(
 # Student functions:
 
 
-def get_values(path: str = "data/lettres_e.txt") -> dict[str, dict[str, int]]:
+def get_values(path: str = "data/lettres.txt") -> dict[str, dict[str, int]]:
     dico = generer_dico(path)
     return dico
