@@ -11,6 +11,53 @@ def word_value(word: str, dico: dict[str, dict[str, int]]) -> int:
     return value
 
 
+def word_value_on_board(
+    word: str,
+    dico: dict[str, dict[str, int]],
+    i: int,
+    j: int,
+    direction: str,
+) -> int:
+    """
+    Compute value of a word depending of the state of the board
+
+    """
+    bonus_board = utils.init_bonus()
+    taille = len(bonus_board)
+    direction = direction.upper()
+    word = word.upper()
+
+    total_lettres = 0
+    multiplicateur_mot = 1
+
+    for k, ch in enumerate(word):
+        lig = i + (direction == "V") * k
+        col = j + (direction == "H") * k
+        if not (0 <= lig < taille and 0 <= col < taille):
+            return 0
+
+        valeur_lettre = dico[ch]["val"]
+        bonus = bonus_board[lig][col]
+
+        if bonus == "LD":
+            valeur_lettre *= 2
+        elif bonus == "LT":
+            valeur_lettre *= 3
+        elif bonus == "MD":
+            multiplicateur_mot *= 2
+        elif bonus == "MT":
+            multiplicateur_mot *= 3
+
+        total_lettres += valeur_lettre
+
+    total = total_lettres * multiplicateur_mot
+
+    if len(word) >= 8:
+        total += 50
+
+    return total
+
+
 def best_word(
     motsfr: list[str],
     ll: list[str],
