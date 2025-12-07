@@ -1,7 +1,7 @@
 import utils
 
 
-def get_words(path: str = "data/b.txt") -> list[str]:
+def get_words(path: str = "littre.txt") -> list[str]:
     return utils.generer_dictfr(path)
 
 

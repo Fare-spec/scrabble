@@ -10,33 +10,34 @@ def asking(question: str) -> str:
     return input(question)
 
 
+
 def fin_de_partie(bag: tl.Pick, needed: int) -> bool:
     """
-    Vrai si le joueur voudrait piocher `needed` jetons mais
-    qu'il n'en reste plus assez dans le sac.
+    True if the player wants to draw `needed` tiles but
+    there are not enough left in the bag.
     """
     return needed > 0 and len(bag) < needed
 
 
 def prochain_joueur(index: int, nb_joueurs: int) -> int:
     """
-    Retourne l'indice du joueur suivant (ordre circulaire).
+    Return the index of the next player (circular order).
     """
     return (index + 1) % nb_joueurs
 
 
 def _cell_has_letter(cell: str) -> bool:
-    """Vrai si la case contient au moins une lettre."""
+    """True if the cell contains at least one letter."""
     return any(c.isalpha() for c in cell)
 
 
 def _cell_empty(cell: str) -> bool:
-    """Vrai si la case ne contient aucune lettre (éventuellement juste des bonus 2,3,²,³)."""
+    """True if the cell contains no letter (possibly only bonus symbols 2,3,²,³)."""
     return not _cell_has_letter(cell)
 
 
 def _cell_letter(cell: str) -> str:
-    """Renvoie la lettre présente dans la case (en majuscule), ou '' s'il n'y en a pas."""
+    """Return the letter present in the cell (uppercase), or '' if none."""
     for c in cell:
         if c.isalpha():
             return c.upper()
@@ -44,7 +45,7 @@ def _cell_letter(cell: str) -> str:
 
 
 def lire_coords(board: Board) -> tuple[int, int]:
-    """Demande des coordonnées jusqu'à obtenir une case vide du plateau."""
+    """Request coordinates until obtaining an empty square on the board."""
     while True:
         entree = asking(
             "Coordonnées de départ du mot (ligne colonne, par ex. '8 8') : "
@@ -71,10 +72,11 @@ def lire_coords(board: Board) -> tuple[int, int]:
 
 
 def tester_placement(plateau, i: int, j: int, direction: str, mot: str):
-    """Vérifie si `mot` est plaçable à partir de (i, j) dans `direction`.
+    """
+    Check whether `mot` can be placed starting at (i, j) in `direction`.
 
-    Renvoie la liste des lettres à ajouter (cases vides rencontrées) ou
-    la liste vide si le placement est impossible.
+    Return the list of letters to be added (empty squares encountered) or
+    the empty list if placement is impossible.
     """
     n = len(mot)
     taille = len(plateau)
@@ -117,7 +119,7 @@ def plateau_vide(plateau) -> bool:
 
 
 def mot_au_contact(plateau, i: int, j: int, direction: str, mot: str) -> bool:
-    """Vérifie que le mot est au contact d'au moins une lettre déjà posée."""
+    """Check that the word touches at least one already-placed letter."""
     if plateau_vide(plateau):
         return True
 
@@ -142,8 +144,9 @@ def mot_au_contact(plateau, i: int, j: int, direction: str, mot: str) -> bool:
 
 
 def lettres_disponibles(necessaires, rack) -> bool:
-    """Vérifie que les lettres nécessaires sont disponibles dans la main,
-    en tenant compte des jokers.
+    """
+    Check that the required letters are available in the rack,
+    taking jokers (wildcards) into account.
     """
     temp = rack.copy()
     for ch in necessaires:
@@ -157,9 +160,10 @@ def lettres_disponibles(necessaires, rack) -> bool:
 
 
 def _extend_word(plateau, i: int, j: int, direction: str):
-    """À partir de la case (i,j) contenant une lettre, étend dans les deux
-    sens pour récupérer le mot complet dans `direction`.
-    Renvoie (mot, start_i, start_j).
+    """
+    From cell (i,j) containing a letter, extend in both directions
+    to retrieve the full word in `direction`.
+    Return (word, start_i, start_j).
     """
     taille = len(plateau)
     direction = direction.upper()
@@ -187,16 +191,17 @@ def _extend_word(plateau, i: int, j: int, direction: str):
 
 
 def _simuler_coup(plateau, i: int, j: int, direction: str, mot: str, mots_fr):
-    """Simule le coup sur une copie du plateau.
+    """
+    Simulate the move on a copy of the board.
 
-    Vérifie:
-    - plaçabilité (tester_placement)
-    - contact avec des lettres existantes
-    - validité du mot principal
-    - validité de tous les mots perpendiculaires créés
+    Check:
+    - placeability (tester_placement)
+    - contact with existing letters
+    - validity of the main word
+    - validity of all perpendicular words created
 
-    Renvoie (ok, mots_formes, lettres_a_placer) avec
-    mots_formes = [(mot, si, sj, dir), ...]
+    Return (ok, formed_words, letters_to_place) with
+    formed_words = [(word, si, sj, dir), ...]
     """
     mot = mot.upper()
     direction = direction.upper()
@@ -254,16 +259,17 @@ def placer_mot(
     dico_lettres,
     mots_fr,
 ):
-    """Tente de placer `mot` sur le plateau en partant de (i, j) dans `direction`.
+    """
+    Attempt to place `mot` on the board starting from (i, j) in `direction`.
 
-    - utilise tester_placement
-    - respecte les lettres déjà posées
-    - impose le contact avec des lettres déjà posées (sauf premier mot)
-    - vérifie la validité de tous les mots formés (principal + perpendiculaires)
-    - calcule le score total avec les bonus
+    - uses tester_placement
+    - respects letters already on the board
+    - enforces contact with existing letters (except first word)
+    - checks validity of all words formed (main + perpendicular)
+    - computes total score with bonuses
 
-    Modifie le plateau et la main du joueur uniquement en cas de succès.
-    Renvoie (réussi: bool, score_coup: int).
+    Modify the board and the player's rack only on success.
+    Return (success: bool, move_score: int).
     """
     plateau = board.board
     mot = mot.upper()
@@ -307,11 +313,11 @@ def tour_joueur(
     mots_fr,
 ):
     """
-    Gère le tour d'un joueur.
-    Affiche le plateau, demande l'action (passer, échanger, proposer un mot)
-    et applique l'action.
-    Renvoie False si la partie doit se terminer (pas assez de lettres pour piocher),
-    True sinon.
+    Handle a player's turn.
+    Display the board, request the action (pass, exchange, propose a word)
+    and apply it.
+    Return False if the game must end (not enough tiles to draw),
+    True otherwise.
     """
     board.affiche_jetons()
     print()
@@ -413,7 +419,7 @@ def tour_joueur(
 
 def calcul_malus_joueur(joueur: pl.Player, dico_lettres) -> int:
     """
-    Somme des valeurs des jetons restants en main.
+    Sum of the values of the tiles remaining in the player's rack.
     """
     total = 0
     for t in joueur.rack:

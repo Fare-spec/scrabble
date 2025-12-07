@@ -4,8 +4,6 @@ from pathlib import Path
 TAILLE_PLATEAU = 15
 TAILLE_MARGE = 4
 JOKER = "?"
-# Permet d'aller chercher les fichiers dans ../data/*
-DATA_DIR: Path = Path(__file__).resolve().parents[1] / "data"
 
 
 def symetrise_liste(lst):
@@ -54,6 +52,6 @@ def generer_dico(
 # Student functions:
 
 
-def get_values(path: str = "data/lettres.txt") -> dict[str, dict[str, int]]:
+def get_values(path: str = "lettres.txt") -> dict[str, dict[str, int]]:
     dico = generer_dico(path)
     return dico
