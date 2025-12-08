@@ -4,9 +4,8 @@ import utils
 
 def word_value(word: str, dico: dict[str, dict[str, int]]) -> int:
     value: int = 0 if len(word) < 8 else 50
-    for (
-        letter
-    ) in word.upper():  # .upper because of the data contained in the dictionnary
+    for letter in word.upper():
+        # .upper because of the data contained in the dictionnary
         value += dico[letter]["val"]
     return value
 
@@ -121,11 +120,8 @@ def test():
     dico = utils.get_values()
     assert best_word(words, ll, dico) == "DEPIT"
     words2 = lx.get_words()
-    l2 = "" + "?ar"
+    l2 = "AZDPEBT"
     l2 = l2.upper()
-    words2.remove("friz".upper())
-    words2.remove("fiz".upper())
-    words2.remove("coq".upper())
     ll2 = [letter for letter in l2]
     best = best_word(words2, ll2, dico, multiple=True)
     score = [word_value(word, dico) for word in best]

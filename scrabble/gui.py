@@ -99,6 +99,11 @@ class ScrabbleGUI:
                     borderwidth=1,
                     font=self.tile_font,
                 )
+
+                color = self._get_bonus_color(i, j)
+                if color is not None:
+                    lbl.configure(bg=color)
+
                 lbl.grid(row=i, column=j, padx=0, pady=0, sticky="nsew")
                 row_labels.append(lbl)
             self.cell_labels.append(row_labels)
@@ -217,6 +222,43 @@ class ScrabbleGUI:
         for p in self.players:
             self.scores_text.insert(tk.END, f"{p.name} : {p.score} points\n")
         self.scores_text.configure(state=tk.DISABLED)
+
+    def _get_bonus_color(self, i: int, j: int) -> str | None:
+        """
+        Retourne une couleur de fond pour la case (i, j) en fonction du bonus.
+        Adapte le mapping en fonction des codes que tu utilises dans Board.
+        """
+        bonus_grid = getattr(self.board, "bonus", None)
+        if bonus_grid is None:
+            return None
+
+        cell = bonus_grid[i][j]
+        if not cell:
+            return None
+
+        code = str(cell).upper()
+
+        # Mot triple
+        if code in ("MT", "3W", "TW"):
+            return "#f94144"  # rouge
+
+        # Mot double
+        if code in ("MD", "2W", "DW"):
+            return "#f8961e"  # orange
+
+        # Lettre triple
+        if code in ("LT", "3L", "TL"):
+            return "#277da1"  # bleu foncé
+
+        # Lettre double
+        if code in ("LD", "2L", "DL"):
+            return "#90be6d"  # vert
+
+        # Centre / étoile éventuelle
+        if code in ("★", "CENTER", "CENTRE"):
+            return "#f9c74f"  # jaune
+
+        return None
 
     def _refresh_all(self) -> None:
         self._refresh_board()

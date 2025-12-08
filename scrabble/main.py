@@ -10,7 +10,6 @@ def asking(question: str) -> str:
     return input(question)
 
 
-
 def fin_de_partie(bag: tl.Pick, needed: int) -> bool:
     """
     True if the player wants to draw `needed` tiles but
@@ -497,3 +496,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+    #
+    #

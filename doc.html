@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Documentation des fonctions – main.py (Scrabble)</title>
+  <style>
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.5; margin: 2rem; }
+    h1 { font-size: 1.8rem; }
+    h2 { margin-top: 2rem; border-bottom: 1px solid #ccc; padding-bottom: 0.3rem; }
+    h3 { margin-top: 0.8rem; }
+    code { background: #f5f5f5; padding: 0.1rem 0.25rem; border-radius: 3px; }
+    pre { background: #f5f5f5; padding: 0.75rem; border-radius: 4px; overflow-x: auto; }
+    .signature { font-family: "Fira Code", monospace; font-size: 0.95rem; background: #f8f8f8; padding: 0.5rem 0.75rem; border-left: 3px solid #888; }
+    ul { margin-top: 0.2rem; }
+  </style>
+</head>
+<body>
+
+<h1>Documentation des fonctions – <code>main.py</code></h1>
+
+<h2>Table des matières</h2>
+<ul>
+  <li><a href="#asking"><code>asking(question: str) -> str</code></a></li>
+  <li><a href="#fin_de_partie"><code>fin_de_partie(bag: tl.Pick, needed: int) -> bool</code></a></li>
+  <li><a href="#prochain_joueur"><code>prochain_joueur(index: int, nb_joueurs: int) -> int</code></a></li>
+  <li><a href="#cell_has_letter"><code>_cell_has_letter(cell: str) -> bool</code></a></li>
+  <li><a href="#cell_empty"><code>_cell_empty(cell: str) -> bool</code></a></li>
+  <li><a href="#cell_letter"><code>_cell_letter(cell: str) -> str</code></a></li>
+  <li><a href="#lire_coords"><code>lire_coords(board: Board) -> tuple[int, int]</code></a></li>
+  <li><a href="#tester_placement"><code>tester_placement(plateau, i: int, j: int, direction: str, mot: str)</code></a></li>
+  <li><a href="#plateau_vide"><code>plateau_vide(plateau) -> bool</code></a></li>
+  <li><a href="#mot_au_contact"><code>mot_au_contact(plateau, i: int, j: int, direction: str, mot: str) -> bool</code></a></li>
+  <li><a href="#lettres_disponibles"><code>lettres_disponibles(necessaires, rack) -> bool</code></a></li>
+  <li><a href="#extend_word"><code>_extend_word(plateau, i: int, j: int, direction: str)</code></a></li>
+  <li><a href="#simuler_coup"><code>_simuler_coup(plateau, i: int, j: int, direction: str, mot: str, mots_fr)</code></a></li>
+  <li><a href="#placer_mot"><code>placer_mot(board: Board, joueur: pl.Player, mot: str, i: int, j: int, direction: str, dico_lettres, mots_fr)</code></a></li>
+  <li><a href="#tour_joueur"><code>tour_joueur(board: Board, joueur: pl.Player, bag: tl.Pick, dico_lettres, mots_fr)</code></a></li>
+  <li><a href="#calcul_malus_joueur"><code>calcul_malus_joueur(joueur: pl.Player, dico_lettres) -> int</code></a></li>
+  <li><a href="#main"><code>main() -> None</code></a></li>
+</ul>
+
+<hr>
+
+<section id="asking">
+  <h2><code>asking(question: str) -> str</code></h2>
+  <div class="signature">def asking(question: str) -&gt; str:</div>
+
+  <h3>Arguments</h3>
+  <ul>
+    <li><code>question</code> (<code>str</code>) : texte de la question à afficher à l’utilisateur.</li>
+  </ul>
+
+  <h3>Logique</h3>
+  <p>
+    Wrapper minimal autour de <code>input()</code>. Affiche la chaîne <code>question</code>,
+    lit ce que l’utilisateur tape sur l’entrée standard et renvoie cette saisie telle quelle.
+  </p>
+
+  <h3>Valeur de retour</h3>
+  <ul>
+    <li><code>str</code> : la réponse brute de l’utilisateur (sans post-traitement).</li>
+  </ul>
+</section>
+
+<section id="fin_de_partie">
+  <h2><code>fin_de_partie(bag: tl.Pick, needed: int) -> bool</code></h2>
+  <div class="signature">def fin_de_partie(bag: tl.Pick, needed: int) -&gt; bool:</div>
+
+  <h3>Arguments</h3>
+  <ul>
+    <li><code>bag</code> (<code>tl.Pick</code>) : sac de jetons restant.</li>
+    <li><code>needed</code> (<code>int</code>) : nombre de jetons que le joueur souhaite piocher.</li>
+  </ul>
+
+  <h3>Logique</h3>
+  <p>
+    Vérifie si le jeu doit s’arrêter à cause d’un manque de jetons dans le sac.
+    La condition est remplie quand :
+  </p>
+  <ul>
+    <li><code>needed &gt; 0</code> (on a effectivement besoin de piocher), et</li>
+    <li><code>len(bag) &lt; needed</code> (le sac ne contient pas assez de jetons).</li>
+  </ul>
+
+  <h3>Valeur de retour</h3>
+  <ul>
+    <li><code>True</code> : il n’y a pas assez de jetons pour piocher <code>needed</code>, la partie doit se terminer.</li>
+    <li><code>False</code> : le sac contient suffisamment de jetons.</li>
+  </ul>
+</section>
+
+<section id="prochain_joueur">
+  <h2><code>prochain_joueur(index: int, nb_joueurs: int) -> int</code></h2>
+  <div class="signature">def prochain_joueur(index: int, nb_joueurs: int) -&gt; int:</div>
+
+  <h3>Arguments</h3>
+  <ul>
+    <li><code>index</code> (<code>int</code>) : indice du joueur courant (0-based).</li>
+    <li><code>nb_joueurs</code> (<code>int</code>) : nombre total de joueurs.</li>
+  </ul>
+
+  <h3>Logique</h3>
+  <p>
+    Incrémente l’indice du joueur et revient à 0 après le dernier
+    en utilisant l’arithmétique modulaire : <code>(index + 1) % nb_joueurs</code>.
+  </p>
+
+  <h3>Valeur de retour</h3>
+  <ul>
+    <li><code>int</code> : indice du prochain joueur dans l’ordre circulaire.</li>
+  </ul>
+</section>
+
+<section id="cell_has_letter">
+  <h2><code>_cell_has_letter(cell: str) -> bool</code></h2>
+  <div class="signature">def _cell_has_letter(cell: str) -&gt; bool:</div>
+
+  <h3>Arguments</h3>
+  <ul>
+    <li><code>cell</code> (<code>str</code>) : représentation textuelle d’une case du plateau.</li>
+  </ul>
+
+  <h3>Logique</h3>
+  <p>
+    Parcourt les caractères de la case et teste si au moins un d’entre eux est une lettre
+    (<code>c.isalpha()</code>). Les cases bonus peuvent contenir des chiffres ou symboles,
+    on ne retient que la présence de lettres.
+  </p>
+
+  <h3>Valeur de retour</h3>
+  <ul>
+    <li><code>True</code> : la case contient au moins une lettre.</li>
+    <li><code>False</code> : aucune lettre dans la case.</li>
+  </ul>
+</section>
+
+<section id="cell_empty">
+  <h2><code>_cell_empty(cell: str) -> bool</code></h2>
+  <div class="signature">def _cell_empty(cell: str) -&gt; bool:</div>
+
+  <h3>Arguments</h3>
+  <ul>
+    <li><code>cell</code> (<code>str</code>) : case du plateau.</li>
+  </ul>
+
+  <h3>Logique</h3>
+  <p>
+    Inverse logique de <code>_cell_has_letter</code>.
+    La case est considérée vide si elle ne contient aucune lettre, même si elle contient des symboles de bonus.
+  </p>
+
+  <h3>Valeur de retour</h3>
+  <ul>
+    <li><code>True</code> : case sans lettre.</li>
+    <li><code>False</code> : une lettre est présente.</li>
+  </ul>
+</section>
+
+<section id="cell_letter">
+  <h2><code>_cell_letter(cell: str) -> str</code></h2>
+  <div class="signature">def _cell_letter(cell: str) -&gt; str:</div>
+
+  <h3>Arguments</h3>
+  <ul>
+    <li><code>cell</code> (<code>str</code>) : case du plateau.</li>
+  </ul>
+
+  <h3>Logique</h3>
+  <p>
+    Parcourt les caractères de la case, renvoie la première lettre rencontrée en majuscules.
+    Si la case ne contient aucune lettre, renvoie la chaîne vide.
+  </p>
+
+  <h3>Valeur de retour</h3>
+  <ul>
+    <li><code>str</code> : lettre unique en majuscules, ou <code>""</code> si la case est vide de lettres.</li>
+  </ul>
+</section>
+
+<section id="lire_coords">
+  <h2><code>lire_coords(board: Board) -> tuple[int, int]</code></h2>
+  <div class="signature">def lire_coords(board: Board) -&gt; tuple[int, int]:</div>
+
+  <h3>Arguments</h3>
+  <ul>
+    <li><code>board</code> (<code>Board</code>) : plateau de jeu contenant taille et cases.</li>
+  </ul>
+
+  <h3>Logique</h3>
+  <ul>
+    <li>Affiche une invite du type “ligne colonne” (par ex. “8 8”).</li>
+    <li>Découpe la saisie en deux morceaux, vérifie qu’il y en a bien deux.</li>
+    <li>Convertit les deux morceaux en entiers, gère les erreurs de conversion.</li>
+    <li>Convertit en indices 0-based (soustrait 1).</li>
+    <li>Vérifie que les coordonnées sont dans les bornes du plateau.</li>
+    <li>Vérifie que la case est vide (<code>_cell_empty</code>).</li>
+    <li>Si une condition échoue, affiche un message d’erreur et redemande.</li>
+  </ul>
+
+  <h3>Valeur de retour</h3>
+  <ul>
+    <li><code>(int, int)</code> : couple <code>(ligne, colonne)</code> valide, 0-based, point de départ pour poser un mot.</li>
+  </ul>
+</section>
+
+<section id="tester_placement">
+  <h2><code>tester_placement(plateau, i: int, j: int, direction: str, mot: str)</code></h2>
+  <div class="signature">def tester_placement(plateau, i: int, j: int, direction: str, mot: str):</div>
+
+  <h3>Arguments</h3>
+  <ul>
+    <li><code>plateau</code> : structure 2D représentant le plateau (liste de listes de cases).</li>
+    <li><code>i</code> (<code>int</code>) : ligne de départ (0-based).</li>
+    <li><code>j</code> (<code>int</code>) : colonne de départ (0-based).</li>
+    <li><code>direction</code> (<code>str</code>) : <code>"H"</code> ou <code>"V"</code> (horizontale / verticale).</li>
+    <li><code>mot</code> (<code>str</code>) : mot à poser (sera passé en majuscules).</li>
+  </ul>
+
+  <h3>Logique</h3>
+  <ul>
+    <li>Normalise la direction (<code>H/V</code>) et le mot (majuscules).</li>
+    <li>Si la direction n’est pas <code>H</code> ou <code>V</code>, placement impossible.</li>
+    <li>Vérifie que le mot tient sur le plateau dans la direction choisie.</li>
+    <li>Initialise une liste <code>lettres_a_placer</code> vide.</li>
+    <li>Pour chaque caractère du mot :
+      <ul>
+        <li>Calcule la case cible (<code>lig, col</code>).</li>
+        <li>Récupère la lettre déjà présente via <code>_cell_letter</code>.</li>
+        <li>Si la case ne contient pas de lettre, ajoute la lettre du mot à <code>lettres_a_placer</code>.</li>
+        <li>Si la case contient la même lettre, c’est acceptable, on continue.</li>
+        <li>Si la case contient une lettre différente, placement impossible.</li>
+      </ul>
+    </li>
+    <li>Si aucune lettre ne doit être posée (tout le mot était déjà là), considéré impossible.</li>
+  </ul>
+
+  <h3>Valeur de retour</h3>
+  <ul>
+    <li><code>list[str]</code> : liste des lettres que le joueur doit réellement poser.</li>
+    <li>Liste vide : placement impossible (ne respecte pas le plateau ou ne pose aucune lettre).</li>
+  </ul>
+</section>
+
+<section id="plateau_vide">
+  <h2><code>plateau_vide(plateau) -> bool</code></h2>
+  <div class="signature">def plateau_vide(plateau) -&gt; bool:</div>
+
+  <h3>Arguments</h3>
+  <ul>
+    <li><code>plateau</code> : structure du plateau (liste de lignes, chaque ligne liste de cases).</li>
+  </ul>
+
+  <h3>Logique</h3>
+  <p>
+    Parcourt toutes les cases et applique <code>_cell_empty</code>.
+    Renvoie <code>True</code> uniquement si toutes les cases sont vides de lettres.
+  </p>
+
+  <h3>Valeur de retour</h3>
+  <ul>
+    <li><code>True</code> : aucune lettre n’est posée sur le plateau.</li>
+    <li><code>False</code> : au moins une lettre est déjà posée.</li>
+  </ul>
+</section>
+
+<section id="mot_au_contact">
+  <h2><code>mot_au_contact(plateau, i: int, j: int, direction: str, mot: str) -> bool</code></h2>
+  <div class="signature">def mot_au_contact(plateau, i: int, j: int, direction: str, mot: str) -&gt; bool:</div>
+
+  <h3>Arguments</h3>
+  <ul>
+    <li><code>plateau</code> : plateau de jeu.</li>
+    <li><code>i</code> (<code>int</code>) : ligne de départ du mot.</li>
+    <li><code>j</code> (<code>int</code>) : colonne de départ du mot.</li>
+    <li><code>direction</code> (<code>str</code>) : <code>"H"</code> ou <code>"V"</code>.</li>
+    <li><code>mot</code> (<code>str</code>) : mot à poser.</li>
+  </ul>
+
+  <h3>Logique</h3>
+  <ul>
+    <li>Si le plateau est vide, tout mot est considéré “au contact” (premier coup) → <code>True</code>.</li>
+    <li>Sinon, pour chaque lettre du mot à poser :
+      <ul>
+        <li>Calcule sa case <code>(lig, col)</code>.</li>
+        <li>Si la case contient déjà une lettre, le mot est au contact.</li>
+        <li>Sinon, regarde les 4 voisins orthogonaux (haut, bas, gauche, droite) :
+          si l’un contient une lettre, le mot est au contact.
+        </li>
+      </ul>
+    </li>
+    <li>Si aucune lettre du mot n’est en contact direct avec une lettre déjà posée, renvoie <code>False</code>.</li>
+  </ul>
+
+  <h3>Valeur de retour</h3>
+  <ul>
+    <li><code>True</code> : le mot posé touche au moins une lettre existante (ou c’est le tout premier mot).</li>
+    <li><code>False</code> : le mot reste isolé, coup non valide au Scrabble.</li>
+  </ul>
+</section>
+
+<section id="lettres_disponibles">
+  <h2><code>lettres_disponibles(necessaires, rack) -> bool</code></h2>
+  <div class="signature">def lettres_disponibles(necessaires, rack) -&gt; bool:</div>
+
+  <h3>Arguments</h3>
+  <ul>
+    <li><code>necessaires</code> : séquence de lettres à poser.</li>
+    <li><code>rack</code> : collection de lettres actuellement dans la main du joueur.</li>
+  </ul>
+
+  <h3>Logique</h3>
+  <ul>
+    <li>Crée une copie temporaire de la main (<code>temp</code>).</li>
+    <li>Pour chaque lettre requise :
+      <ul>
+        <li>Si la lettre est dans <code>temp</code>, la retire.</li>
+        <li>Sinon, si un joker (<code>utils.JOKER</code>) est présent, retire un joker.</li>
+        <li>Sinon, la main ne peut pas fournir cette lettre → échec.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h3>Valeur de retour</h3>
+  <ul>
+    <li><code>True</code> : toutes les lettres requises peuvent être fournies par la main (avec jokers si besoin).</li>
+    <li><code>False</code> : au moins une lettre ne peut pas être fournie.</li>
+  </ul>
+</section>
+
+<section id="extend_word">
+  <h2><code>_extend_word(plateau, i: int, j: int, direction: str)</code></h2>
+  <div class="signature">def _extend_word(plateau, i: int, j: int, direction: str):</div>
+
+  <h3>Arguments</h3>
+  <ul>
+    <li><code>plateau</code> : plateau de jeu.</li>
+    <li><code>i</code> (<code>int</code>) : ligne de départ, contenant une lettre.</li>
+    <li><code>j</code> (<code>int</code>) : colonne de départ, contenant une lettre.</li>
+    <li><code>direction</code> (<code>str</code>) : direction du mot à reconstituer (<code>"H"</code> ou <code>"V"</code>).</li>
+  </ul>
+
+  <h3>Logique</h3>
+  <ul>
+    <li>Normalise la direction.</li>
+    <li>Choisit un vecteur <code>(dl, dc)</code> de parcours selon la direction.</li>
+    <li>Recule d’abord à partir de <code>(i, j)</code> tant que les cases précédentes contiennent des lettres
+        pour trouver le début du mot.</li>
+    <li>Enregistre ce début comme <code>(start_i, start_j)</code>.</li>
+    <li>À partir de ce début, avance dans la direction choisie en collectant les lettres via <code>_cell_letter</code>
+        jusqu’à tomber sur une case sans lettre ou sortir du plateau.</li>
+  </ul>
+
+  <h3>Valeur de retour</h3>
+  <ul>
+    <li><code>(str, int, int)</code> :
+      <ul>
+        <li><code>str</code> : mot complet reconstitué.</li>
+        <li><code>int</code> : ligne de départ réelle du mot.</li>
+        <li><code>int</code> : colonne de départ réelle du mot.</li>
+      </ul>
+    </li>
+  </ul>
+</section>
+
+<section id="simuler_coup">
+  <h2><code>_simuler_coup(plateau, i: int, j: int, direction: str, mot: str, mots_fr)</code></h2>
+  <div class="signature">def _simuler_coup(plateau, i: int, j: int, direction: str, mot: str, mots_fr):</div>
+
+  <h3>Arguments</h3>
+  <ul>
+    <li><code>plateau</code> : plateau actuel.</li>
+    <li><code>i</code>, <code>j</code> (<code>int</code>) : coordonnées de départ.</li>
+    <li><code>direction</code> (<code>str</code>) : <code>"H"</code> ou <code>"V"</code>.</li>
+    <li><code>mot</code> (<code>str</code>) : mot proposé.</li>
+    <li><code>mots_fr</code> : ensemble ou collection de mots valides (dictionnaire).</li>
+  </ul>
+
+  <h3>Logique</h3>
+  <ul>
+    <li>Met mot et direction en majuscules.</li>
+    <li>Utilise <code>tester_placement</code> pour déterminer les lettres à placer :
+      si liste vide → coup impossible.</li>
+    <li>Vérifie le contact avec des lettres existantes via <code>mot_au_contact</code> :
+      si échec → coup impossible.</li>
+    <li>Crée une copie du plateau (<code>temp</code>) et y “pose” les lettres du mot
+      uniquement sur les cases qui étaient vides.</li>
+    <li>Reconstitue le mot principal avec <code>_extend_word</code> et vérifie qu’il appartient à <code>mots_fr</code>.</li>
+    <li>Initialise une liste <code>mots_formes</code> avec le mot principal et ses coordonnées.</li>
+    <li>Calcule la direction perpendiculaire (<code>dir_perp</code>) et,
+        pour chaque lettre du mot posé sur une case initialement vide :
+      <ul>
+        <li>Utilise <code>_extend_word</code> dans la direction perpendiculaire.</li>
+        <li>Ignore les mots de longueur 1.</li>
+        <li>Vérifie que chaque mot perpendiculaire est dans <code>mots_fr</code>,
+            sinon coup impossible.</li>
+        <li>Ajoute tous les mots perpendiculaires valides à <code>mots_formes</code>.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h3>Valeur de retour</h3>
+  <ul>
+    <li>Tuple <code>(ok, formed_words, letters_to_place)</code> :
+      <ul>
+        <li><code>ok</code> (<code>bool</code>) : <code>True</code> si le coup est entièrement valide.</li>
+        <li><code>formed_words</code> (<code>list[(str, int, int, str)]</code>) :
+          liste des mots formés (principal et perpendiculaires) avec leur point de départ et direction.</li>
+        <li><code>letters_to_place</code> (<code>list[str]</code>) :
+          lettres que le joueur doit poser (retour de <code>tester_placement</code>).</li>
+      </ul>
+    </li>
+    <li>En cas de coup invalide : <code>(False, [], [])</code>.</li>
+  </ul>
+</section>
+
+<section id="placer_mot">
+  <h2><code>placer_mot(board: Board, joueur: pl.Player, mot: str, i: int, j: int, direction: str, dico_lettres, mots_fr)</code></h2>
+  <div class="signature">
+    def placer_mot(board: Board, joueur: pl.Player, mot: str, i: int, j: int, direction: str, dico_lettres, mots_fr):
+  </div>
+
+  <h3>Arguments</h3>
+  <ul>
+    <li><code>board</code> (<code>Board</code>) : plateau de jeu.</li>
+    <li><code>joueur</code> (<code>pl.Player</code>) : joueur qui joue.</li>
+    <li><code>mot</code> (<code>str</code>) : mot proposé.</li>
+    <li><code>i</code>, <code>j</code> (<code>int</code>) : coordonnées de départ.</li>
+    <li><code>direction</code> (<code>str</code>) : <code>"H"</code> ou <code>"V"</code>.</li>
+    <li><code>dico_lettres</code> : dictionnaire des valeurs de lettres.</li>
+    <li><code>mots_fr</code> : dictionnaire de mots valides.</li>
+  </ul>
+
+  <h3>Logique</h3>
+  <ul>
+    <li>Normalise mot et direction (majuscules).</li>
+    <li>Appelle <code>tester_placement</code> pour obtenir <code>lettres_a_placer</code>.
+      Si liste vide → échec.</li>
+    <li>Vérifie que le joueur a les lettres nécessaires avec <code>lettres_disponibles</code>
+      (prend en compte les jokers).</li>
+    <li>Appelle <code>_simuler_coup</code> pour valider l’ensemble du coup
+      (contact, mots perpendiculaires, etc.). Si échec → ne modifie rien.</li>
+    <li>Si tout est valide :
+      <ul>
+        <li>Pose réellement les lettres : pour chaque lettre du mot, si la case était vide,
+            écrit la lettre sur le plateau.</li>
+        <li>Retire de la main du joueur les lettres utilisées (ou des jokers si la lettre n’est pas directement disponible).</li>
+        <li>Calcule le score total du coup en appelant
+          <code>sc.word_value_on_board</code> sur chaque mot formé.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h3>Valeur de retour</h3>
+  <ul>
+    <li><code>(bool, int)</code> :
+      <ul>
+        <li><code>True</code>, <code>score_total</code> : le coup est posé et <code>score_total</code> est la valeur globale du coup.</li>
+        <li><code>False</code>, <code>0</code> : coup invalide, plateau et main inchangés.</li>
+      </ul>
+    </li>
+  </ul>
+</section>
+
+<section id="tour_joueur">
+  <h2><code>tour_joueur(board: Board, joueur: pl.Player, bag: tl.Pick, dico_lettres, mots_fr)</code></h2>
+  <div class="signature">
+    def tour_joueur(board: Board, joueur: pl.Player, bag: tl.Pick, dico_lettres, mots_fr):
+  </div>
+
+  <h3>Arguments</h3>
+  <ul>
+    <li><code>board</code> (<code>Board</code>) : plateau.</li>
+    <li><code>joueur</code> (<code>pl.Player</code>) : joueur actif.</li>
+    <li><code>bag</code> (<code>tl.Pick</code>) : sac de jetons.</li>
+    <li><code>dico_lettres</code> : valeurs de lettres.</li>
+    <li><code>mots_fr</code> : dictionnaire de mots valides.</li>
+  </ul>
+
+  <h3>Logique</h3>
+  <ul>
+    <li>Affiche le plateau, le score et la main du joueur.</li>
+    <li>Propose trois actions :
+      <ul>
+        <li><code>P</code> : passer</li>
+        <li><code>E</code> : échanger des lettres</li>
+        <li><code>S</code> : proposer un mot</li>
+      </ul>
+    </li>
+    <li>Si le joueur choisit <strong>Passer</strong> :
+      <ul><li>Retourne immédiatement <code>True</code> (tour terminé, partie continue).</li></ul>
+    </li>
+    <li>Si le joueur choisit <strong>Échanger</strong> :
+      <ul>
+        <li>Lit la liste de lettres à échanger (chaîne sans espaces).</li>
+        <li>Annule si chaîne vide.</li>
+        <li>Refuse plus de 7 lettres.</li>
+        <li>Vérifie que le joueur possède ces lettres.</li>
+        <li>Vérifie via <code>fin_de_partie</code> que le sac a assez de jetons pour l’échange.
+            Si non → message et <code>False</code> (fin de partie).</li>
+        <li>Appelle <code>joueur.exchange_tiles</code> :
+          <ul>
+            <li>Si échec (sac insuffisant) → message et <code>False</code>.</li>
+            <li>Si succès → affiche la nouvelle main et renvoie <code>True</code>.</li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>Si le joueur choisit <strong>Proposer un mot</strong> :
+      <ul>
+        <li>Boucle jusqu’à un coup valide ou annulation.</li>
+        <li>Demande un mot :
+          <ul>
+            <li>Vide → annulation, retourne <code>True</code>.</li>
+            <li>Non présent dans <code>mots_fr</code> → message et nouvelle saisie.</li>
+          </ul>
+        </li>
+        <li>Demande la direction (<code>H</code>/<code>V</code>) en boucle tant que réponse invalide.</li>
+        <li>Lit les coordonnées via <code>lire_coords</code>.</li>
+        <li>Appelle <code>placer_mot</code> :
+          <ul>
+            <li>Si échec → message d’erreur et nouvelle proposition de mot.</li>
+            <li>Si succès → sort de la boucle.</li>
+          </ul>
+        </li>
+        <li>Affiche la valeur du coup et ajoute les points au joueur.</li>
+        <li>Ré-affiche le plateau.</li>
+        <li>Calcule combien de lettres manquent pour remonter la main à 7.</li>
+        <li>Vérifie via <code>fin_de_partie</code> si le sac permet de compléter la main :
+          si non → message et <code>False</code>.</li>
+        <li>Tire les lettres manquantes dans le sac et les ajoute à la main.</li>
+        <li>Affiche la nouvelle main.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h3>Valeur de retour</h3>
+  <ul>
+    <li><code>True</code> : le tour s’est déroulé correctement, la partie peut continuer.</li>
+    <li><code>False</code> : la partie doit s’arrêter (sac insuffisant pour échange ou repioche).</li>
+  </ul>
+</section>
+
+<section id="calcul_malus_joueur">
+  <h2><code>calcul_malus_joueur(joueur: pl.Player, dico_lettres) -> int</code></h2>
+  <div class="signature">
+    def calcul_malus_joueur(joueur: pl.Player, dico_lettres) -&gt; int:
+  </div>
+
+  <h3>Arguments</h3>
+  <ul>
+    <li><code>joueur</code> (<code>pl.Player</code>) : joueur dont on calcule le malus.</li>
+    <li><code>dico_lettres</code> : dictionnaire des valeurs des lettres.</li>
+  </ul>
+
+  <h3>Logique</h3>
+  <p>
+    Parcourt toutes les tuiles restantes dans la main du joueur et
+    additionne leur valeur en utilisant <code>dico_lettres[t]["val"]</code>.
+  </p>
+
+  <h3>Valeur de retour</h3>
+  <ul>
+    <li><code>int</code> : somme des valeurs des lettres encore en main, utilisée comme malus de fin de partie.</li>
+  </ul>
+</section>
+
+<section id="main">
+  <h2><code>main() -> None</code></h2>
+  <div class="signature">def main() -&gt; None:</div>
+
+  <h3>Arguments</h3>
+  <ul>
+    <li>Aucun argument. Point d’entrée de la version console du jeu.</li>
+  </ul>
+
+  <h3>Logique</h3>
+  <ul>
+    <li>Charge les valeurs des lettres via <code>utils.get_values()</code>.</li>
+    <li>Charge le dictionnaire de mots via <code>lx.get_words()</code>.</li>
+    <li>Crée le plateau <code>Board</code>, initialise bonus et cases.</li>
+    <li>Crée le sac <code>tl.Pick()</code>.</li>
+    <li>Demande le nombre de joueurs, avec validation d’un entier strictement positif.</li>
+    <li>Pour chaque joueur :
+      <ul>
+        <li>Demande le nom (ou attribue “JoueurX” par défaut).</li>
+        <li>Crée un <code>pl.Player</code>, qui pioche sa main initiale dans le sac.</li>
+      </ul>
+    </li>
+    <li>Initialise l’indice du joueur courant et un drapeau de fin de partie.</li>
+    <li>Boucle tant que la partie n’est pas terminée :
+      <ul>
+        <li>Identifie le joueur courant.</li>
+        <li>Appelle <code>tour_joueur</code> pour gérer son tour.</li>
+        <li>Si <code>tour_joueur</code> renvoie <code>False</code>, met fin à la partie.</li>
+        <li>Sinon, passe au joueur suivant avec <code>prochain_joueur</code>.</li>
+      </ul>
+    </li>
+    <li>À la fin :
+      <ul>
+        <li>Affiche “Fin de partie”.</li>
+        <li>Mémorise le dernier joueur à avoir joué.</li>
+        <li>Pour tous les autres joueurs, calcule le malus de lettres restantes avec
+          <code>calcul_malus_joueur</code>, soustrait ces points à leur score et affiche les détails.</li>
+        <li>Affiche quel joueur a joué en dernier.</li>
+        <li>Affiche le tableau des scores finaux.</li>
+        <li>Détermine le(s) gagnant(s) en cherchant le score maximal et annonce soit un gagnant unique, soit une égalité.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h3>Valeur de retour</h3>
+  <ul>
+    <li>Aucune valeur utile (<code>None</code>). Les effets sont les interactions console et la modification des objets du jeu.</li>
+  </ul>
+</section>
+
+</body>
+</html>

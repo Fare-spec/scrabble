@@ -1,4 +1,5 @@
 from typing import Any
+import copy as cp
 import utils
 
 
@@ -36,7 +37,7 @@ class Board:
         # here is to know which cell is a bonus and if we're using the first list we might at some point overwrite one of the bonus by a letter
         # the solutions are this one or using tuples inside the first list
         original_list = utils.init_bonus()
-        copy = self.board.copy()
+        copy = cp.deepcopy(self.board)
         bonuses = ("MT", "LD", "MD", "LT")
         mt_set = extract_coords(original_list, bonuses[0])
         ld_set = extract_coords(original_list, bonuses[1])
